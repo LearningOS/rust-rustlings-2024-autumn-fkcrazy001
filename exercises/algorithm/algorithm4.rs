@@ -3,7 +3,7 @@
 	This problem requires you to implement a basic interface for a binary tree
 */
 
-//I AM NOT DONE
+
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
@@ -48,15 +48,49 @@ where
         BinarySearchTree { root: None }
     }
 
+    fn dfs_insert(root: &mut Box<TreeNode<T>>, new: Box<TreeNode<T>>) {
+        if root.value == new.value {
+
+        }
+        else if root.value > new.value {
+            match root.left {
+                None => root.left = Some(new),
+                Some(ref mut lroot) => Self::dfs_insert(lroot, new)
+            }
+        } else {
+            match  root.right {
+                None => root.right = Some(new),
+                Some(ref mut rroot) => Self::dfs_insert(rroot, new)
+            }
+        }
+    }
     // Insert a value into the BST
     fn insert(&mut self, value: T) {
         //TODO
+        let node = Box::new(TreeNode::new(value));
+        match self.root {
+            None=>self.root=Some(node),
+            Some(ref mut root)=>Self::dfs_insert(root, node)
+        }
+    }
+
+    fn dfs_search(root: &Option<Box<TreeNode<T>>>, value: T) -> bool {
+        match root {
+            None=>false,
+            Some(ref new) => if new.value==value {
+                true
+            } else if new.value > value {
+                Self::dfs_search(&new.left, value)
+            } else {
+                Self::dfs_search(&new.right, value)
+            }
+        }
     }
 
     // Search for a value in the BST
     fn search(&self, value: T) -> bool {
         //TODO
-        true
+        return  Self::dfs_search(&self.root, value);
     }
 }
 

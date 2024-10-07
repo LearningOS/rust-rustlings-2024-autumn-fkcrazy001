@@ -2,7 +2,8 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
+
+
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -13,7 +14,7 @@ where
 {
     count: usize,
     items: Vec<T>,
-    comparator: fn(&T, &T) -> bool,
+    comparator: fn(&T, &T) -> bool, // a in heap, b new comer, returns true if need adjust
 }
 
 impl<T> Heap<T>
@@ -35,9 +36,65 @@ where
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
+    // may make value of this idx up
+    fn up(&mut self, idx: usize) {
+        let mut i = idx;
+        while i > 1 {
+            let parent = self.parent_idx(i);
+            let x = &self.items[parent];
+            let y = &self.items[i];
+            if (self.comparator)(x,y) {
+                return;
+            }
+            self.items.swap(i, parent);
+            println!("up:{i} <=> {parent}");
+            i = parent;
+        }
+    }
+    fn down(&mut self, idx:usize) {
+        let mut i = idx;
+        while i <= self.count {
+            match self.children_present(i) {
+                false=>return,
+                true=>{
+                    let mut child = self.left_child_idx(i);
+                    if let Some(r) = self.items.get(child+1) {
+                        if !(self.comparator)(self.items.get(child).unwrap(), r) {
+                            child += 1;
+                        }
+                    }
+                    if (self.comparator)(self.items.get(i).unwrap(), self.items.get(child).unwrap()) {
+                        return;
+                    }
+                    self.items.swap(i, child);
+
+                    println!("down:{i} <=> {child}");
+                    i = child;
+                }
+            }
+        }
+    }
 
     pub fn add(&mut self, value: T) {
         //TODO
+        // println!("{:?}", self.items);
+        self.items.push(value);
+        self.count+=1;
+        self.up(self.count);
+        // println!("{:?}", self.items);
+    }
+    pub fn pop(&mut self) -> Option<T> {
+        match self.is_empty() {
+            true=>None,
+            _ => {
+                println!("pop:1 <=> {}",self.count);
+                self.items.swap(1, self.count);
+                let a = self.items.pop();
+                self.count-=1;
+                self.down(1);
+                a
+            }
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +115,17 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+		if let (Some(l), Some(r)) = (self.items.get(idx*2),self.items.get(idx*2+1)) {
+            if (self.comparator)(l,r) {
+                idx*2
+            } else {
+                idx * 2 + 1
+            }
+        } else if let Some(_) = self.items.get(idx*2) {
+            idx*2
+        } else {
+            idx // no child
+        }
     }
 }
 
@@ -85,7 +152,8 @@ where
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+        self.pop()
+        // None
     }
 }
 

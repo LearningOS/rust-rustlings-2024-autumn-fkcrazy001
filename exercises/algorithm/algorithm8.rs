@@ -2,7 +2,6 @@
 	queue
 	This question requires you to use queues to implement the functionality of the stac
 */
-// I AM NOT DONE
 
 #[derive(Debug)]
 pub struct Queue<T> {
@@ -55,27 +54,52 @@ impl<T> Default for Queue<T> {
 pub struct myStack<T>
 {
 	//TODO
+    data_in_q1:bool,
 	q1:Queue<T>,
 	q2:Queue<T>
 }
-impl<T> myStack<T> {
+impl<T: std::fmt::Display> myStack<T> {
     pub fn new() -> Self {
         Self {
 			//TODO
+            data_in_q1:true,
 			q1:Queue::<T>::new(),
 			q2:Queue::<T>::new()
         }
     }
     pub fn push(&mut self, elem: T) {
         //TODO
+        let q = match self.data_in_q1 {
+            true => &mut self.q1,
+            false => &mut self.q2,
+        };
+        q.enqueue(elem);
     }
     pub fn pop(&mut self) -> Result<T, &str> {
         //TODO
-		Err("Stack is empty")
+        let  from;
+        let to; 
+        match self.data_in_q1 {
+            true => {from = &mut self.q1; to=&mut self.q2},
+            false => {from = &mut self.q2; to=&mut self.q1},
+        };
+        self.data_in_q1 = !self.data_in_q1;
+        while from.size() > 1 {
+            to.enqueue(from.dequeue().unwrap());
+        }
+        // should have only 1 elements
+        if let Ok(v) = from.dequeue() {
+            println!("value {}",v);
+            return Ok(v);
+        }
+        Err("Stack is empty")
     }
     pub fn is_empty(&self) -> bool {
 		//TODO
-        true
+        match self.data_in_q1 {
+            true => self.q1.is_empty(),
+            false=>self.q2.is_empty(),
+        }
     }
 }
 
